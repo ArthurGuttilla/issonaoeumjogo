@@ -235,6 +235,45 @@
   }
   .card-front-line { width: 32px; height: 1px; background: #c9a85c; opacity: 0.5; }
 
+  .resposta-area {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .resposta-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .resposta-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    resize: vertical;
+    min-height: 70px;
+    transition: border-color 0.2s;
+  }
+  .resposta-input:focus {
+    outline: none;
+    border-color: var(--gold-dim);
+  }
+  .resposta-status {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    min-height: 0.8rem;
+  }
+
   .card-actions {
     display: flex;
     gap: 12px;
@@ -384,6 +423,16 @@
     font-style: italic;
   }
 
+  .hist-resposta {
+    margin-top: 8px;
+    padding-left: 10px;
+    border-left: 2px solid var(--gold-dim);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
   .hist-empty {
     text-align: center;
     color: var(--text-muted);
@@ -447,8 +496,15 @@
       </div>
     </div>
 
+    <div class="resposta-area" id="respostaArea" style="display:none">
+      <label class="resposta-label" for="respostaInput">sua resposta (opcional)</label>
+      <textarea id="respostaInput" class="resposta-input" rows="3" placeholder="escreva o que essa pergunta te trouxe…"></textarea>
+      <div class="resposta-status" id="respostaStatus"></div>
+    </div>
+
     <div class="card-actions" id="cardActions" style="display:none">
-      <button class="btn btn-gold" onclick="puxarCarta()">próxima carta</button>
+      <button class="btn btn-gold" id="btnSalvar" onclick="salvarResposta()">salvar resposta</button>
+      <button class="btn" onclick="puxarCarta()">próxima carta</button>
       <button class="btn" onclick="resetarTema()">reiniciar pilha</button>
     </div>
   </div>
@@ -545,8 +601,9 @@ const temas = [
 // ---- STATE ----
 let temaSelecionado = 'all';
 let usadas = {};
-let historico = []; // [{ id, temaNum, emoji, nomeThema, pergunta, ts }]
+let historico = []; // [{ id, temaNum, emoji, nomeThema, pergunta, resposta, ts }]
 let filtroAtivo = null; // null = todos
+let cartaAtual = null; // { tema, pergunta } enquanto não salva
 
 // ---- STORAGE HELPERS ----
 async function salvarHistorico() {
@@ -630,6 +687,10 @@ function esconderCarta() {
   document.getElementById('cardDisplay').classList.remove('visible', 'animate');
   document.getElementById('cardActions').style.display = 'none';
   document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('respostaArea').style.display = 'none';
+  document.getElementById('respostaInput').value = '';
+  document.getElementById('respostaStatus').textContent = '';
+  cartaAtual = null;
 }
 
 async function puxarCarta() {
@@ -657,19 +718,17 @@ async function puxarCarta() {
   const tema = escolha.tema;
   usadas[tema.num].push(escolha.i);
 
-  // registrar no histórico
-  const entrada = {
-    id: Date.now(),
-    temaNum: tema.num,
-    emoji: tema.emoji,
-    nomeThema: tema.nome,
-    pergunta: escolha.p,
-    ts: new Date().toISOString()
-  };
-  historico.unshift(entrada); // mais recente primeiro
+  cartaAtual = { tema, pergunta: escolha.p };
 
   await salvarUsadas();
-  await salvarHistorico();
+
+  // reseta campo de resposta
+  document.getElementById('respostaInput').value = '';
+  document.getElementById('respostaStatus').textContent = '';
+  document.getElementById('respostaArea').style.display = 'flex';
+  const btnSalvar = document.getElementById('btnSalvar');
+  btnSalvar.disabled = false;
+  btnSalvar.textContent = 'salvar resposta';
 
   // UI carta
   document.getElementById('cardTema').textContent = `${tema.emoji} ${tema.nome}`;
@@ -698,6 +757,33 @@ async function puxarCarta() {
   }, 280);
 
   atualizarDeck();
+}
+
+async function salvarResposta() {
+  if (!cartaAtual) return;
+  const resposta = document.getElementById('respostaInput').value.trim();
+  if (!resposta) {
+    const s = document.getElementById('respostaStatus');
+    s.textContent = 'escreva algo antes de salvar';
+    return;
+  }
+  const tema = cartaAtual.tema;
+  const entrada = {
+    id: Date.now(),
+    temaNum: tema.num,
+    emoji: tema.emoji,
+    nomeThema: tema.nome,
+    pergunta: cartaAtual.pergunta,
+    resposta,
+    ts: new Date().toISOString()
+  };
+  historico.unshift(entrada);
+  await salvarHistorico();
+  cartaAtual = null;
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true;
+  btn.textContent = 'salvo ✓';
+  document.getElementById('respostaStatus').textContent = 'resposta salva no histórico';
   renderHistorico();
 }
 
@@ -714,6 +800,10 @@ async function resetarTema() {
 }
 
 // ---- HISTÓRICO ----
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 function formatarTempo(iso) {
   const d = new Date(iso);
   const agora = new Date();
@@ -773,6 +863,9 @@ function renderHistorico() {
   filtrado.forEach(h => {
     const item = document.createElement('div');
     item.className = 'hist-item';
+    const respostaHtml = h.resposta
+      ? `<p class="hist-resposta">${escapeHtml(h.resposta)}</p>`
+      : '';
     item.innerHTML = `
       <span class="hist-emoji">${h.emoji}</span>
       <div class="hist-body">
@@ -780,7 +873,8 @@ function renderHistorico() {
           <span class="hist-tema-nome">${h.nomeThema}</span>
           <span class="hist-time">${formatarTempo(h.ts)}</span>
         </div>
-        <p class="hist-pergunta">${h.pergunta}</p>
+        <p class="hist-pergunta">${escapeHtml(h.pergunta)}</p>
+        ${respostaHtml}
       </div>
     `;
     list.appendChild(item);
