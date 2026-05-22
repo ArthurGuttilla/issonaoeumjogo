@@ -83,6 +83,20 @@
     margin-bottom: 36px;
   }
 
+  .tema-aleatorio-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .tema-aleatorio {
+    width: 100%;
+    max-width: 280px;
+    padding: 16px 20px 14px !important;
+  }
+  .tema-aleatorio .tema-emoji { font-size: 1.8rem !important; margin-bottom: 6px !important; }
+  .tema-aleatorio .tema-nome { font-size: 0.95rem !important; letter-spacing: 0.05em; }
+  .tema-aleatorio .tema-num { font-size: 0.6rem !important; }
+
   .tema-btn {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -398,6 +412,7 @@
   </header>
 
   <p class="temas-label">escolha uma temática</p>
+  <div class="tema-aleatorio-wrap" id="temaAleatorioWrap"></div>
   <div class="temas-grid" id="temasGrid"></div>
 
   <div class="ornament">· · ·</div>
@@ -564,14 +579,16 @@ async function carregarUsadas() {
 
 // ---- RENDER TEMAS ----
 function renderTemas() {
-  const grid = document.getElementById('temasGrid');
-  grid.innerHTML = '';
-
+  const wrap = document.getElementById('temaAleatorioWrap');
+  wrap.innerHTML = '';
   const aleatorio = document.createElement('button');
   aleatorio.className = 'tema-btn tema-aleatorio' + (temaSelecionado === 'all' ? ' active' : '');
-  aleatorio.innerHTML = `<span class="tema-emoji">🎲</span><span class="tema-num">Tema 0</span><span class="tema-nome">Aleatório</span>`;
+  aleatorio.innerHTML = `<span class="tema-emoji">🎲</span><span class="tema-nome">Aleatório</span>`;
   aleatorio.onclick = () => { temaSelecionado = 'all'; renderTemas(); atualizarDeck(); esconderCarta(); };
-  grid.appendChild(aleatorio);
+  wrap.appendChild(aleatorio);
+
+  const grid = document.getElementById('temasGrid');
+  grid.innerHTML = '';
 
   temas.forEach(t => {
     const btn = document.createElement('button');
