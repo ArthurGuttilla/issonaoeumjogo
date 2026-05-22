@@ -461,7 +461,7 @@ const STORAGE_KEY = 'jogo-historico-v1';
 const USADAS_KEY  = 'jogo-usadas-v1';
 
 const temas = [
-  { num: 1, emoji: "🌱", nome: "Origens", perguntas: [
+  { num: 1, emoji: "🌱", nome: "Origens", cor: "#7ab87a", perguntas: [
     "Qual é a memória mais antiga que você consegue acessar com clareza?",
     "O que você aprendeu com sua família que nunca jogou fora?",
     "Tem alguma coisa da sua infância que ainda define quem você é hoje?",
@@ -469,7 +469,7 @@ const temas = [
     "Como era o lugar onde você cresceu — e o que ele deixou em você?",
     "Qual versão de você mesmo você deixou para trás quando cresceu?",
   ]},
-  { num: 2, emoji: "🔥", nome: "O que te move", perguntas: [
+  { num: 2, emoji: "🔥", nome: "O que te move", cor: "#d96b3a", perguntas: [
     "Quando foi a última vez que você sentiu que estava exatamente no lugar certo, fazendo a coisa certa?",
     "O que te faz levantar da cama em dias em que nada te obriga?",
     "Tem algum problema no mundo que te incomoda tanto que você pensa nele toda semana?",
@@ -477,7 +477,7 @@ const temas = [
     "Qual conquista sua as pessoas costumam subestimar — mas que te orgulha muito?",
     "O que você está construindo que vai sobreviver a você?",
   ]},
-  { num: 3, emoji: "🌊", nome: "Medos", perguntas: [
+  { num: 3, emoji: "🌊", nome: "Medos", cor: "#4a7fb8", perguntas: [
     "Qual é o medo que você raramente admite em voz alta?",
     "Tem algo que você evita há tanto tempo que já não sabe mais por quê começou a evitar?",
     "O que você faz quando a vida fica pesada demais para carregar sozinho?",
@@ -485,7 +485,7 @@ const temas = [
     "Em que momento da sua vida você se sentiu mais perdido — e o que te trouxe de volta?",
     "Tem alguma coisa em você com que você ainda não fez as pazes?",
   ]},
-  { num: 4, emoji: "💛", nome: "Amor", perguntas: [
+  { num: 4, emoji: "💛", nome: "Amor", cor: "#e0b84a", perguntas: [
     "Como você sabe que está sendo amado de verdade?",
     "O que você demorou mais tempo para aprender sobre se relacionar com pessoas?",
     "Tem alguém na sua vida com quem você tem uma dívida de gratidão que nunca pagou?",
@@ -493,7 +493,7 @@ const temas = [
     "O que você oferece numa relação que poucas pessoas percebem?",
     "O que você precisou perder para entender o que realmente importa numa conexão?",
   ]},
-  { num: 5, emoji: "🧭", nome: "Valores", perguntas: [
+  { num: 5, emoji: "🧭", nome: "Valores", cor: "#8a6ab8", perguntas: [
     "Qual foi a decisão mais difícil que você tomou — e você ainda acha que foi certa?",
     "Tem algo que você nunca abriria mão, independente do que estivesse em jogo?",
     "O que você faz quando seus valores colidem com o que as pessoas esperam de você?",
@@ -501,7 +501,7 @@ const temas = [
     "Como você distingue o que você quer do que você foi ensinado a querer?",
     "Qual princípio guia você mesmo quando ninguém está olhando?",
   ]},
-  { num: 6, emoji: "✨", nome: "Futuros", perguntas: [
+  { num: 6, emoji: "✨", nome: "Futuros", cor: "#5ab8b0", perguntas: [
     "Como você imagina sua vida daqui a dez anos — de verdade, não o que diria numa entrevista?",
     "Qual sonho você guardou numa gaveta por ser 'irreal' — mas que ainda abre essa gaveta às vezes?",
     "O que você quer sentir no final de um dia bem vivido?",
@@ -509,7 +509,7 @@ const temas = [
     "Que tipo de pessoa você está tentando se tornar — e o que está no caminho?",
     "Qual legado você quer deixar para as pessoas que você ama?",
   ]},
-  { num: 7, emoji: "🎭", nome: "Leveza", perguntas: [
+  { num: 7, emoji: "🎭", nome: "Leveza", cor: "#d47ab0", perguntas: [
     "Qual é a coisa mais estranha que te dá prazer — que você quase nunca conta pra ninguém?",
     "Se você fosse um personagem de livro, em qual cena estaria agora?",
     "Qual é a crença completamente irracional que você ainda mantém?",
@@ -517,7 +517,7 @@ const temas = [
     "Qual seria o título do documentário da sua vida?",
     "Se você pudesse exportar uma sensação para outra pessoa experimentar, qual seria?",
   ]},
-  { num: 8, emoji: "🤝", nome: "Você & Eu", perguntas: [
+  { num: 8, emoji: "🤝", nome: "Você & Eu", cor: "#c9a85c", perguntas: [
     "O que te fez aceitar esse encontro?",
     "Tem algo que você queria perguntar mas ainda não perguntou?",
     "O que você percebeu sobre mim hoje que não esperava perceber?",
@@ -528,7 +528,7 @@ const temas = [
 ];
 
 // ---- STATE ----
-let temaSelecionado = null;
+let temaSelecionado = 'all';
 let usadas = {};
 let historico = []; // [{ id, temaNum, emoji, nomeThema, pergunta, ts }]
 let filtroAtivo = null; // null = todos
@@ -566,9 +566,17 @@ async function carregarUsadas() {
 function renderTemas() {
   const grid = document.getElementById('temasGrid');
   grid.innerHTML = '';
+
+  const aleatorio = document.createElement('button');
+  aleatorio.className = 'tema-btn tema-aleatorio' + (temaSelecionado === 'all' ? ' active' : '');
+  aleatorio.innerHTML = `<span class="tema-emoji">🎲</span><span class="tema-num">Tema 0</span><span class="tema-nome">Aleatório</span>`;
+  aleatorio.onclick = () => { temaSelecionado = 'all'; renderTemas(); atualizarDeck(); esconderCarta(); };
+  grid.appendChild(aleatorio);
+
   temas.forEach(t => {
     const btn = document.createElement('button');
     btn.className = 'tema-btn' + (temaSelecionado === t.num ? ' active' : '');
+    btn.style.setProperty('--tema-cor', t.cor);
     btn.innerHTML = `<span class="tema-emoji">${t.emoji}</span><span class="tema-num">Tema ${t.num}</span><span class="tema-nome">${t.nome}</span>`;
     btn.onclick = () => { temaSelecionado = t.num; renderTemas(); atualizarDeck(); esconderCarta(); };
     grid.appendChild(btn);
@@ -578,8 +586,13 @@ function renderTemas() {
 // ---- DECK ----
 function atualizarDeck() {
   if (!temaSelecionado) return;
-  const tema = temas.find(t => t.num === temaSelecionado);
-  const restantes = tema.perguntas.length - (usadas[temaSelecionado] || []).length;
+  let restantes;
+  if (temaSelecionado === 'all') {
+    restantes = temas.reduce((acc, t) => acc + (t.perguntas.length - (usadas[t.num] || []).length), 0);
+  } else {
+    const tema = temas.find(t => t.num === temaSelecionado);
+    restantes = tema.perguntas.length - (usadas[temaSelecionado] || []).length;
+  }
   const counter = document.getElementById('deckCounter');
   const label = document.getElementById('deckLabel');
   const deck = document.getElementById('deckStack');
@@ -604,15 +617,27 @@ function esconderCarta() {
 
 async function puxarCarta() {
   if (!temaSelecionado) return;
-  const tema = temas.find(t => t.num === temaSelecionado);
-  if (!usadas[tema.num]) usadas[tema.num] = [];
-  const disponiveis = tema.perguntas
-    .map((p, i) => ({ p, i }))
-    .filter(({ i }) => !usadas[tema.num].includes(i));
 
-  if (disponiveis.length === 0) return;
+  let pool = [];
+  if (temaSelecionado === 'all') {
+    temas.forEach(t => {
+      if (!usadas[t.num]) usadas[t.num] = [];
+      t.perguntas.forEach((p, i) => {
+        if (!usadas[t.num].includes(i)) pool.push({ tema: t, p, i });
+      });
+    });
+  } else {
+    const tema = temas.find(t => t.num === temaSelecionado);
+    if (!usadas[tema.num]) usadas[tema.num] = [];
+    tema.perguntas.forEach((p, i) => {
+      if (!usadas[tema.num].includes(i)) pool.push({ tema, p, i });
+    });
+  }
 
-  const escolha = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+  if (pool.length === 0) return;
+
+  const escolha = pool[Math.floor(Math.random() * pool.length)];
+  const tema = escolha.tema;
   usadas[tema.num].push(escolha.i);
 
   // registrar no histórico
@@ -632,6 +657,14 @@ async function puxarCarta() {
   // UI carta
   document.getElementById('cardTema').textContent = `${tema.emoji} ${tema.nome}`;
   document.getElementById('cardPergunta').textContent = escolha.p;
+
+  const front = document.getElementById('cardFront');
+  front.style.borderColor = tema.cor;
+  front.style.boxShadow = `0 0 0 3px ${tema.cor}22, 0 12px 40px ${tema.cor}25`;
+  document.getElementById('cardTema').style.color = tema.cor;
+  document.querySelectorAll('#cardFront .card-front-line').forEach(el => {
+    el.style.background = tema.cor;
+  });
 
   const inner = document.getElementById('cardInner');
   inner.classList.remove('flipped');
@@ -653,7 +686,11 @@ async function puxarCarta() {
 
 async function resetarTema() {
   if (!temaSelecionado) return;
-  usadas[temaSelecionado] = [];
+  if (temaSelecionado === 'all') {
+    temas.forEach(t => { usadas[t.num] = []; });
+  } else {
+    usadas[temaSelecionado] = [];
+  }
   esconderCarta();
   atualizarDeck();
   await salvarUsadas();
@@ -746,6 +783,7 @@ async function init() {
   await carregarUsadas();
   await carregarHistorico();
   renderTemas();
+  atualizarDeck();
   renderHistorico();
 }
 
