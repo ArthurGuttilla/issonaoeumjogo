@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isso Não É Um Jogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0b08;
+    --surface: #16120d;
+    --card-bg: #1c1710;
+    --card-front: #f5f0e8;
+    --gold: #c9a85c;
+    --gold-light: #e8d5a3;
+    --gold-dim: #7a6438;
+    --text: #f0ece0;
+    --text-dim: #8a7a60;
+    --text-muted: #4a4030;
+    --border: #2e2818;
+    --border-hover: #5a4a2a;
+    --red-dim: #7a3838;
+  }
+
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 20px 64px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  .wrap { position: relative; z-index: 1; width: 100%; max-width: 480px; }
+
+  header { text-align: center; margin-bottom: 36px; }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .title em { font-style: italic; color: var(--gold); }
+
+  .subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .temas-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .temas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 36px;
+  }
+
+  .tema-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 10px 6px 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    text-align: center;
+    transition: all 0.25s ease;
+    font-family: 'Cormorant Garamond', serif;
+    position: relative;
+    overflow: hidden;
+  }
+  .tema-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--gold) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .tema-btn:hover { border-color: var(--border-hover); color: var(--text); transform: translateY(-1px); }
+  .tema-btn:hover::after { opacity: 0.04; }
+  .tema-btn.active { border-color: var(--gold); color: var(--gold-light); background: #201a0e; }
+  .tema-btn.active::after { opacity: 0.07; }
+  .tema-emoji { font-size: 1.3rem; display: block; margin-bottom: 3px; }
+  .tema-num { display: block; font-size: 0.55rem; letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 1px; }
+  .tema-nome { font-size: 0.68rem; line-height: 1.2; }
+
+  .deck-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .deck-stack {
+    position: relative;
+    width: 280px;
+    height: 180px;
+    cursor: pointer;
+    margin-bottom: 16px;
+  }
+  .deck-stack .stack-layer {
+    position: absolute;
+    width: 280px;
+    height: 180px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+  }
+  .stack-layer:nth-child(1) { transform: rotate(-3deg) translateY(6px); background: #130f09; border-color: #221c10; }
+  .stack-layer:nth-child(2) { transform: rotate(-1.5deg) translateY(3px); background: #161209; border-color: #281e0f; }
+  .stack-layer.top-card {
+    transform: rotate(0deg) translateY(0px);
+    background: var(--card-bg);
+    border-color: var(--border-hover);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .deck-stack:hover .top-card {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(201, 168, 92, 0.12);
+    border-color: var(--gold-dim);
+  }
+  .deck-stack:active .top-card { transform: translateY(-1px); }
+  .deck-stack.empty-deck { cursor: default; }
+  .deck-stack.empty-deck .top-card { opacity: 0.35; pointer-events: none; }
+
+  .card-back-ornament { width: 60px; height: 60px; opacity: 0.3; }
+  .card-back-label {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .deck-counter {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .card-display {
+    perspective: 1000px;
+    width: 320px;
+    height: 200px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .card-display.visible { display: block; }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 24px;
+  }
+  .card-back-face { background: var(--card-bg); border: 1px solid var(--border-hover); }
+  .card-front-face {
+    background: var(--card-front);
+    border: 1px solid #d4c9a8;
+    transform: rotateY(180deg);
+    gap: 10px;
+  }
+  .card-front-tema { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: #8a7050; }
+  .card-front-pergunta {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #1a1208;
+    text-align: center;
+    font-weight: 400;
+  }
+  .card-front-line { width: 32px; height: 1px; background: #c9a85c; opacity: 0.5; }
+
+  .card-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 48px;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 9px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    font-family: 'Cormorant Garamond', serif;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .btn-gold { border-color: var(--gold-dim); color: var(--gold); }
+  .btn-gold:hover { background: #c9a85c15; border-color: var(--gold); color: var(--gold-light); }
+
+  .ornament {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-align: center;
+    margin: 0 0 28px;
+    opacity: 0.5;
+  }
+
+  @keyframes dealCard {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card-display.animate { animation: dealCard 0.35s ease forwards; }
+
+  /* ===== HISTÓRICO ===== */
+  .historico-section { width: 100%; }
+
+  .historico-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .historico-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .historico-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-tiny {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    font-family: 'Cormorant Garamond', serif;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-tiny:hover { border-color: var(--border-hover); color: var(--text-dim); }
+  .btn-tiny.danger:hover { border-color: var(--red-dim); color: #e07070; }
+
+  .historico-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    font-family: 'Cormorant Garamond', serif;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--border-hover); color: var(--text-dim); }
+  .filter-btn.active { border-color: var(--gold-dim); color: var(--gold); background: #1e1a0e; }
+
+  .historico-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .hist-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: fadeSlide 0.3s ease;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hist-emoji { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+  .hist-body { flex: 1; min-width: 0; }
+
+  .hist-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .hist-tema-nome {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+
+  .hist-time {
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .hist-pergunta {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .hist-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.82rem;
+    padding: 24px 0;
+  }
+
+  .hist-count-badge {
+    background: #201a0e;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-dim);
+    font-size: 0.58rem;
+    padding: 1px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1 class="title">Isso <em>Não É</em> Um Jogo</h1>
+    <p class="subtitle">perguntas para encontros reais</p>
+  </header>
+
+  <p class="temas-label">escolha uma temática</p>
+  <div class="temas-grid" id="temasGrid"></div>
+
+  <div class="ornament">· · ·</div>
+
+  <div class="deck-area">
+    <div class="deck-stack" id="deckStack" onclick="puxarCarta()">
+      <div class="stack-layer"></div>
+      <div class="stack-layer"></div>
+      <div class="stack-layer top-card">
+        <svg class="card-back-ornament" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="50" height="50" rx="4" stroke="#c9a85c" stroke-width="0.8"/>
+          <rect x="12" y="12" width="36" height="36" rx="2" stroke="#c9a85c" stroke-width="0.5" stroke-dasharray="3 2"/>
+          <circle cx="30" cy="30" r="8" stroke="#c9a85c" stroke-width="0.8"/>
+          <line x1="30" y1="18" x2="30" y2="42" stroke="#c9a85c" stroke-width="0.4"/>
+          <line x1="18" y1="30" x2="42" y2="30" stroke="#c9a85c" stroke-width="0.4"/>
+          <circle cx="30" cy="30" r="2" fill="#c9a85c"/>
+        </svg>
+        <span class="card-back-label" id="deckLabel">clique para puxar</span>
+      </div>
+    </div>
+
+    <p class="deck-counter" id="deckCounter">— selecione um tema acima —</p>
+
+    <div class="card-display" id="cardDisplay">
+      <div class="card-inner" id="cardInner">
+        <div class="card-face card-back-face"></div>
+        <div class="card-face card-front-face" id="cardFront">
+          <span class="card-front-tema" id="cardTema"></span>
+          <div class="card-front-line"></div>
+          <p class="card-front-pergunta" id="cardPergunta"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-actions" id="cardActions" style="display:none">
+      <button class="btn btn-gold" onclick="puxarCarta()">próxima carta</button>
+      <button class="btn" onclick="resetarTema()">reiniciar pilha</button>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="historico-section" id="historicoSection">
+    <div class="historico-header">
+      <span class="historico-title">Histórico <span class="hist-count-badge" id="histCountBadge">0</span></span>
+      <div class="historico-controls">
+        <button class="btn-tiny danger" onclick="limparHistorico()">limpar tudo</button>
+      </div>
+    </div>
+
+    <div class="historico-filter" id="historicoFilter"></div>
+
+    <div class="historico-list" id="historicoList">
+      <p class="hist-empty">nenhuma carta puxada ainda</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'jogo-historico-v1';
+const USADAS_KEY  = 'jogo-usadas-v1';
+
+const temas = [
+  { num: 1, emoji: "🌱", nome: "Origens", perguntas: [
+    "Qual é a memória mais antiga que você consegue acessar com clareza?",
+    "O que você aprendeu com sua família que nunca jogou fora?",
+    "Tem alguma coisa da sua infância que ainda define quem você é hoje?",
+    "Quem foi a primeira pessoa de fora da família que realmente te enxergou?",
+    "Como era o lugar onde você cresceu — e o que ele deixou em você?",
+    "Qual versão de você mesmo você deixou para trás quando cresceu?",
+  ]},
+  { num: 2, emoji: "🔥", nome: "O que te move", perguntas: [
+    "Quando foi a última vez que você sentiu que estava exatamente no lugar certo, fazendo a coisa certa?",
+    "O que te faz levantar da cama em dias em que nada te obriga?",
+    "Tem algum problema no mundo que te incomoda tanto que você pensa nele toda semana?",
+    "O que você faria se soubesse que não ia falhar?",
+    "Qual conquista sua as pessoas costumam subestimar — mas que te orgulha muito?",
+    "O que você está construindo que vai sobreviver a você?",
+  ]},
+  { num: 3, emoji: "🌊", nome: "Medos", perguntas: [
+    "Qual é o medo que você raramente admite em voz alta?",
+    "Tem algo que você evita há tanto tempo que já não sabe mais por quê começou a evitar?",
+    "O que você faz quando a vida fica pesada demais para carregar sozinho?",
+    "Qual versão de fracasso você mais teme?",
+    "Em que momento da sua vida você se sentiu mais perdido — e o que te trouxe de volta?",
+    "Tem alguma coisa em você com que você ainda não fez as pazes?",
+  ]},
+  { num: 4, emoji: "💛", nome: "Amor", perguntas: [
+    "Como você sabe que está sendo amado de verdade?",
+    "O que você demorou mais tempo para aprender sobre se relacionar com pessoas?",
+    "Tem alguém na sua vida com quem você tem uma dívida de gratidão que nunca pagou?",
+    "Como é para você quando você se sente verdadeiramente visto por alguém?",
+    "O que você oferece numa relação que poucas pessoas percebem?",
+    "O que você precisou perder para entender o que realmente importa numa conexão?",
+  ]},
+  { num: 5, emoji: "🧭", nome: "Valores", perguntas: [
+    "Qual foi a decisão mais difícil que você tomou — e você ainda acha que foi certa?",
+    "Tem algo que você nunca abriria mão, independente do que estivesse em jogo?",
+    "O que você faz quando seus valores colidem com o que as pessoas esperam de você?",
+    "Quando foi a última vez que você mudou de opinião sobre algo que achava fundamental?",
+    "Como você distingue o que você quer do que você foi ensinado a querer?",
+    "Qual princípio guia você mesmo quando ninguém está olhando?",
+  ]},
+  { num: 6, emoji: "✨", nome: "Futuros", perguntas: [
+    "Como você imagina sua vida daqui a dez anos — de verdade, não o que diria numa entrevista?",
+    "Qual sonho você guardou numa gaveta por ser 'irreal' — mas que ainda abre essa gaveta às vezes?",
+    "O que você quer sentir no final de um dia bem vivido?",
+    "Se pudesse conversar com a versão de você daqui a 20 anos, o que perguntaria?",
+    "Que tipo de pessoa você está tentando se tornar — e o que está no caminho?",
+    "Qual legado você quer deixar para as pessoas que você ama?",
+  ]},
+  { num: 7, emoji: "🎭", nome: "Leveza", perguntas: [
+    "Qual é a coisa mais estranha que te dá prazer — que você quase nunca conta pra ninguém?",
+    "Se você fosse um personagem de livro, em qual cena estaria agora?",
+    "Qual é a crença completamente irracional que você ainda mantém?",
+    "O que você faz quando está sozinho e tem certeza que ninguém está olhando?",
+    "Qual seria o título do documentário da sua vida?",
+    "Se você pudesse exportar uma sensação para outra pessoa experimentar, qual seria?",
+  ]},
+  { num: 8, emoji: "🤝", nome: "Você & Eu", perguntas: [
+    "O que te fez aceitar esse encontro?",
+    "Tem algo que você queria perguntar mas ainda não perguntou?",
+    "O que você percebeu sobre mim hoje que não esperava perceber?",
+    "Se você tivesse que me apresentar para um amigo seu, o que diria até agora?",
+    "O que a conversa de hoje vai deixar em você?",
+    "Tem alguma coisa que você quer que eu saiba sobre você antes de nos despedirmos?",
+  ]},
+];
+
+// ---- STATE ----
+let temaSelecionado = null;
+let usadas = {};
+let historico = []; // [{ id, temaNum, emoji, nomeThema, pergunta, ts }]
+let filtroAtivo = null; // null = todos
+
+// ---- STORAGE HELPERS ----
+async function salvarHistorico() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
+  } catch(e) {}
+}
+
+async function carregarHistorico() {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY);
+    if (v) historico = JSON.parse(v);
+  } catch(e) { historico = []; }
+}
+
+async function salvarUsadas() {
+  try {
+    localStorage.setItem(USADAS_KEY, JSON.stringify(usadas));
+  } catch(e) {}
+}
+
+async function carregarUsadas() {
+  try {
+    const v = localStorage.getItem(USADAS_KEY);
+    if (v) usadas = JSON.parse(v);
+  } catch(e) {}
+  // garante que todos os temas existam
+  temas.forEach(t => { if (!usadas[t.num]) usadas[t.num] = []; });
+}
+
+// ---- RENDER TEMAS ----
+function renderTemas() {
+  const grid = document.getElementById('temasGrid');
+  grid.innerHTML = '';
+  temas.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'tema-btn' + (temaSelecionado === t.num ? ' active' : '');
+    btn.innerHTML = `<span class="tema-emoji">${t.emoji}</span><span class="tema-num">Tema ${t.num}</span><span class="tema-nome">${t.nome}</span>`;
+    btn.onclick = () => { temaSelecionado = t.num; renderTemas(); atualizarDeck(); esconderCarta(); };
+    grid.appendChild(btn);
+  });
+}
+
+// ---- DECK ----
+function atualizarDeck() {
+  if (!temaSelecionado) return;
+  const tema = temas.find(t => t.num === temaSelecionado);
+  const restantes = tema.perguntas.length - (usadas[temaSelecionado] || []).length;
+  const counter = document.getElementById('deckCounter');
+  const label = document.getElementById('deckLabel');
+  const deck = document.getElementById('deckStack');
+
+  if (restantes === 0) {
+    counter.textContent = 'pilha esgotada';
+    label.textContent = 'sem cartas';
+    deck.classList.add('empty-deck');
+  } else {
+    counter.textContent = `${restantes} carta${restantes !== 1 ? 's' : ''} restante${restantes !== 1 ? 's' : ''}`;
+    label.textContent = 'clique para puxar';
+    deck.classList.remove('empty-deck');
+  }
+}
+
+function esconderCarta() {
+  document.getElementById('cardDisplay').style.display = 'none';
+  document.getElementById('cardDisplay').classList.remove('visible', 'animate');
+  document.getElementById('cardActions').style.display = 'none';
+  document.getElementById('cardInner').classList.remove('flipped');
+}
+
+async function puxarCarta() {
+  if (!temaSelecionado) return;
+  const tema = temas.find(t => t.num === temaSelecionado);
+  if (!usadas[tema.num]) usadas[tema.num] = [];
+  const disponiveis = tema.perguntas
+    .map((p, i) => ({ p, i }))
+    .filter(({ i }) => !usadas[tema.num].includes(i));
+
+  if (disponiveis.length === 0) return;
+
+  const escolha = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+  usadas[tema.num].push(escolha.i);
+
+  // registrar no histórico
+  const entrada = {
+    id: Date.now(),
+    temaNum: tema.num,
+    emoji: tema.emoji,
+    nomeThema: tema.nome,
+    pergunta: escolha.p,
+    ts: new Date().toISOString()
+  };
+  historico.unshift(entrada); // mais recente primeiro
+
+  await salvarUsadas();
+  await salvarHistorico();
+
+  // UI carta
+  document.getElementById('cardTema').textContent = `${tema.emoji} ${tema.nome}`;
+  document.getElementById('cardPergunta').textContent = escolha.p;
+
+  const inner = document.getElementById('cardInner');
+  inner.classList.remove('flipped');
+
+  const display = document.getElementById('cardDisplay');
+  display.style.display = 'block';
+  display.classList.remove('animate');
+  void display.offsetWidth;
+  display.classList.add('visible', 'animate');
+
+  setTimeout(() => {
+    inner.classList.add('flipped');
+    document.getElementById('cardActions').style.display = 'flex';
+  }, 280);
+
+  atualizarDeck();
+  renderHistorico();
+}
+
+async function resetarTema() {
+  if (!temaSelecionado) return;
+  usadas[temaSelecionado] = [];
+  esconderCarta();
+  atualizarDeck();
+  await salvarUsadas();
+}
+
+// ---- HISTÓRICO ----
+function formatarTempo(iso) {
+  const d = new Date(iso);
+  const agora = new Date();
+  const diff = Math.floor((agora - d) / 1000);
+  if (diff < 60) return 'agora';
+  if (diff < 3600) return `${Math.floor(diff/60)}min atrás`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h atrás`;
+  const dias = Math.floor(diff/86400);
+  if (dias === 1) return 'ontem';
+  if (dias < 7) return `${dias}d atrás`;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
+function renderFiltros() {
+  const bar = document.getElementById('historicoFilter');
+  bar.innerHTML = '';
+
+  // quantos temas têm cartas no histórico?
+  const temasNoHist = [...new Set(historico.map(h => h.temaNum))];
+  if (temasNoHist.length < 2) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+
+  // botão "todos"
+  const todos = document.createElement('button');
+  todos.className = 'filter-btn' + (filtroAtivo === null ? ' active' : '');
+  todos.textContent = 'todos';
+  todos.onclick = () => { filtroAtivo = null; renderHistorico(); };
+  bar.appendChild(todos);
+
+  temasNoHist.forEach(num => {
+    const t = temas.find(x => x.num === num);
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (filtroAtivo === num ? ' active' : '');
+    btn.textContent = `${t.emoji} ${t.nome}`;
+    btn.onclick = () => { filtroAtivo = num; renderHistorico(); };
+    bar.appendChild(btn);
+  });
+}
+
+function renderHistorico() {
+  const list = document.getElementById('historicoList');
+  const badge = document.getElementById('histCountBadge');
+  badge.textContent = historico.length;
+
+  renderFiltros();
+
+  const filtrado = filtroAtivo
+    ? historico.filter(h => h.temaNum === filtroAtivo)
+    : historico;
+
+  if (filtrado.length === 0) {
+    list.innerHTML = '<p class="hist-empty">nenhuma carta puxada ainda</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+  filtrado.forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'hist-item';
+    item.innerHTML = `
+      <span class="hist-emoji">${h.emoji}</span>
+      <div class="hist-body">
+        <div class="hist-meta">
+          <span class="hist-tema-nome">${h.nomeThema}</span>
+          <span class="hist-time">${formatarTempo(h.ts)}</span>
+        </div>
+        <p class="hist-pergunta">${h.pergunta}</p>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+async function limparHistorico() {
+  if (!confirm('Apagar todo o histórico de cartas?')) return;
+  historico = [];
+  filtroAtivo = null;
+  await salvarHistorico();
+  renderHistorico();
+}
+
+// ---- INIT ----
+async function init() {
+  await carregarUsadas();
+  await carregarHistorico();
+  renderTemas();
+  renderHistorico();
+}
+
+init();
+</script>
+</body>
+</html>
