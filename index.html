@@ -48,7 +48,168 @@
 
   .wrap { position: relative; z-index: 1; width: 100%; max-width: 480px; }
 
-  header { text-align: center; margin-bottom: 36px; }
+  header { text-align: center; margin-bottom: 24px; }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    padding: 10px 22px;
+    cursor: pointer;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text-dim); }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold-dim); }
+
+  .topico-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .topico-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.92rem;
+    transition: border-color 0.2s;
+  }
+  .topico-input:focus { outline: none; border-color: var(--gold-dim); }
+
+  .topicos-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+  .topico-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    animation: fadeSlide 0.3s ease;
+  }
+  .topico-item.done { opacity: 0.55; }
+  .topico-item.done .topico-texto { text-decoration: line-through; color: var(--text-muted); }
+
+  .topico-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topico-check {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .topico-check:checked { background: var(--gold-dim); }
+  .topico-check:checked::after {
+    content: '✓';
+    position: absolute;
+    color: var(--bg);
+    font-size: 0.8rem;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    font-weight: bold;
+  }
+  .topico-texto {
+    flex: 1;
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.4;
+    word-wrap: break-word;
+    min-width: 0;
+  }
+  .topico-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .topico-icon-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+  }
+  .topico-icon-btn:hover { border-color: var(--border-hover); color: var(--text-dim); }
+  .topico-icon-btn.danger:hover { border-color: var(--red-dim); color: #e07070; }
+  .topico-icon-btn.ai { color: var(--gold-dim); border-color: var(--gold-dim); }
+  .topico-icon-btn.ai:hover { background: #c9a85c15; color: var(--gold-light); }
+  .topico-icon-btn:disabled { opacity: 0.5; cursor: wait; }
+
+  .topico-perguntas {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--gold-dim);
+    background: #14100a;
+    border-radius: 0 6px 6px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .topico-perguntas-titulo {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+  .topico-pergunta {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text);
+    font-style: italic;
+  }
+  .topico-perguntas-erro {
+    color: #e07070;
+    font-size: 0.78rem;
+    font-style: italic;
+  }
+  .topico-loading {
+    color: var(--gold-dim);
+    font-size: 0.78rem;
+    font-style: italic;
+  }
+
+  .api-config {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 24px;
+  }
+  .api-config summary {
+    cursor: pointer;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .api-config[open] summary { color: var(--gold-dim); margin-bottom: 10px; }
+  .api-help { font-size: 0.78rem; color: var(--text-dim); margin: 8px 0 10px; line-height: 1.4; }
+  .api-row { display: flex; gap: 8px; }
+  .api-status { font-size: 0.7rem; color: var(--gold-dim); margin-top: 8px; min-height: 0.8rem; }
 
   .title {
     font-family: 'Playfair Display', serif;
@@ -460,6 +621,13 @@
     <p class="subtitle">perguntas para encontros reais</p>
   </header>
 
+  <nav class="tabs">
+    <button class="tab-btn active" data-view="cartas" onclick="trocarAba('cartas')">Cartas</button>
+    <button class="tab-btn" data-view="topicos" onclick="trocarAba('topicos')">Tópicos</button>
+  </nav>
+
+  <div class="view view-cartas" id="viewCartas">
+
   <p class="temas-label">escolha uma temática</p>
   <div class="tema-aleatorio-wrap" id="temaAleatorioWrap"></div>
   <div class="temas-grid" id="temasGrid"></div>
@@ -525,11 +693,41 @@
     </div>
   </div>
 
+  </div><!-- /view-cartas -->
+
+  <div class="view view-topicos" id="viewTopicos" style="display:none">
+    <p class="temas-label">tópicos para conversar</p>
+
+    <form class="topico-form" id="topicoForm" onsubmit="adicionarTopico(event)">
+      <input type="text" id="topicoInput" class="topico-input" placeholder="ex.: a relação dos meus pais influenciou…" maxlength="200" required>
+      <button type="submit" class="btn btn-gold">adicionar</button>
+    </form>
+
+    <div class="topicos-list" id="topicosList">
+      <p class="hist-empty">nenhum tópico anotado ainda</p>
+    </div>
+
+    <div class="ornament">· · ·</div>
+
+    <details class="api-config" id="apiConfig">
+      <summary>configurar IA (Anthropic)</summary>
+      <p class="api-help">para gerar perguntas de aprofundamento, cole sua chave da API Anthropic. ela fica apenas no seu navegador (localStorage).</p>
+      <div class="api-row">
+        <input type="password" id="apiKeyInput" class="topico-input" placeholder="sk-ant-...">
+        <button type="button" class="btn" onclick="salvarApiKey()">salvar chave</button>
+      </div>
+      <p class="api-status" id="apiStatus"></p>
+    </details>
+  </div>
+
 </div>
 
 <script>
 const STORAGE_KEY = 'jogo-historico-v1';
 const USADAS_KEY  = 'jogo-usadas-v1';
+const TOPICOS_KEY = 'jogo-topicos-v1';
+const APIKEY_KEY  = 'jogo-apikey-v1';
+const AI_MODEL    = 'claude-haiku-4-5-20251001';
 
 const temas = [
   { num: 1, emoji: "🌱", nome: "Origens", cor: "#7ab87a", perguntas: [
@@ -889,13 +1087,164 @@ async function limparHistorico() {
   renderHistorico();
 }
 
+// ---- TABS ----
+function trocarAba(view) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  document.getElementById('viewCartas').style.display = view === 'cartas' ? '' : 'none';
+  document.getElementById('viewTopicos').style.display = view === 'topicos' ? '' : 'none';
+}
+
+// ---- TÓPICOS ----
+let topicos = []; // [{ id, texto, feito, perguntas: [] }]
+
+function carregarTopicos() {
+  try {
+    const v = localStorage.getItem(TOPICOS_KEY);
+    if (v) topicos = JSON.parse(v);
+  } catch(e) { topicos = []; }
+}
+function salvarTopicos() {
+  try { localStorage.setItem(TOPICOS_KEY, JSON.stringify(topicos)); } catch(e) {}
+}
+
+function adicionarTopico(e) {
+  e.preventDefault();
+  const input = document.getElementById('topicoInput');
+  const texto = input.value.trim();
+  if (!texto) return;
+  topicos.unshift({ id: Date.now(), texto, feito: false, perguntas: [] });
+  input.value = '';
+  salvarTopicos();
+  renderTopicos();
+}
+
+function toggleTopico(id) {
+  const t = topicos.find(x => x.id === id);
+  if (!t) return;
+  t.feito = !t.feito;
+  salvarTopicos();
+  renderTopicos();
+}
+
+function removerTopico(id) {
+  topicos = topicos.filter(x => x.id !== id);
+  salvarTopicos();
+  renderTopicos();
+}
+
+function renderTopicos() {
+  const list = document.getElementById('topicosList');
+  if (topicos.length === 0) {
+    list.innerHTML = '<p class="hist-empty">nenhum tópico anotado ainda</p>';
+    return;
+  }
+  list.innerHTML = '';
+  topicos.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'topico-item' + (t.feito ? ' done' : '');
+    let perguntasHtml = '';
+    if (t.loading) {
+      perguntasHtml = '<div class="topico-perguntas"><p class="topico-loading">gerando perguntas…</p></div>';
+    } else if (t.erro) {
+      perguntasHtml = `<div class="topico-perguntas"><p class="topico-perguntas-erro">${escapeHtml(t.erro)}</p></div>`;
+    } else if (t.perguntas && t.perguntas.length) {
+      perguntasHtml = `<div class="topico-perguntas">
+        <span class="topico-perguntas-titulo">perguntas geradas</span>
+        ${t.perguntas.map(p => `<p class="topico-pergunta">${escapeHtml(p)}</p>`).join('')}
+      </div>`;
+    }
+    item.innerHTML = `
+      <div class="topico-row">
+        <input type="checkbox" class="topico-check" ${t.feito ? 'checked' : ''} onchange="toggleTopico(${t.id})">
+        <span class="topico-texto">${escapeHtml(t.texto)}</span>
+        <div class="topico-actions">
+          <button class="topico-icon-btn ai" onclick="gerarPerguntas(${t.id})" ${t.loading ? 'disabled' : ''}>🤖 perguntas</button>
+          <button class="topico-icon-btn danger" onclick="removerTopico(${t.id})">remover</button>
+        </div>
+      </div>
+      ${perguntasHtml}
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ---- API KEY ----
+function getApiKey() {
+  try { return localStorage.getItem(APIKEY_KEY) || ''; } catch(e) { return ''; }
+}
+function salvarApiKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v) return;
+  try { localStorage.setItem(APIKEY_KEY, v); } catch(e) {}
+  document.getElementById('apiKeyInput').value = '';
+  document.getElementById('apiStatus').textContent = 'chave salva localmente';
+}
+
+async function gerarPerguntas(id) {
+  const t = topicos.find(x => x.id === id);
+  if (!t) return;
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    t.erro = 'configure sua chave da API Anthropic abaixo';
+    renderTopicos();
+    document.getElementById('apiConfig').open = true;
+    return;
+  }
+  t.loading = true;
+  t.erro = null;
+  renderTopicos();
+
+  const prompt = `Você é um facilitador de conversas profundas entre duas pessoas em um encontro real (não jogo de tabuleiro). Gere 5 perguntas reflexivas, abertas, ricas e pessoais que ajudem a aprofundar o tópico abaixo. Evite sim/não, evite clichês, evite numeração. Responda APENAS com as 5 perguntas, uma por linha, sem introdução nem fechamento.
+
+TÓPICO: ${t.texto}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HTTP ${res.status}: ${body.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    const texto = (data.content && data.content[0] && data.content[0].text) || '';
+    const perguntas = texto
+      .split('\n')
+      .map(l => l.replace(/^[\s\-\*\d\.\)]+/, '').trim())
+      .filter(l => l.length > 5);
+    t.perguntas = perguntas;
+    t.loading = false;
+  } catch (err) {
+    t.loading = false;
+    t.erro = 'erro ao chamar a API: ' + (err.message || err);
+  }
+  salvarTopicos();
+  renderTopicos();
+}
+
 // ---- INIT ----
 async function init() {
   await carregarUsadas();
   await carregarHistorico();
+  carregarTopicos();
   renderTemas();
   atualizarDeck();
   renderHistorico();
+  renderTopicos();
+  if (getApiKey()) document.getElementById('apiStatus').textContent = 'chave configurada';
 }
 
 init();
