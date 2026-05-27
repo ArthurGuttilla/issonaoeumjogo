@@ -710,10 +710,10 @@
     <div class="ornament">· · ·</div>
 
     <details class="api-config" id="apiConfig">
-      <summary>configurar IA (Anthropic)</summary>
-      <p class="api-help">para gerar perguntas de aprofundamento, cole sua chave da API Anthropic. ela fica apenas no seu navegador (localStorage).</p>
+      <summary>configurar IA (OpenAI)</summary>
+      <p class="api-help">para gerar perguntas de aprofundamento, cole sua chave da API OpenAI. ela fica apenas no seu navegador (localStorage) — nunca é enviada ao repositório.</p>
       <div class="api-row">
-        <input type="password" id="apiKeyInput" class="topico-input" placeholder="sk-ant-...">
+        <input type="password" id="apiKeyInput" class="topico-input" placeholder="sk-...">
         <button type="button" class="btn" onclick="salvarApiKey()">salvar chave</button>
       </div>
       <p class="api-status" id="apiStatus"></p>
@@ -727,7 +727,7 @@ const STORAGE_KEY = 'jogo-historico-v1';
 const USADAS_KEY  = 'jogo-usadas-v1';
 const TOPICOS_KEY = 'jogo-topicos-v1';
 const APIKEY_KEY  = 'jogo-apikey-v1';
-const AI_MODEL    = 'claude-haiku-4-5-20251001';
+const AI_MODEL    = 'gpt-4o-mini';
 
 const temas = [
   { num: 1, emoji: "🌱", nome: "Origens", cor: "#7ab87a", perguntas: [
@@ -1187,7 +1187,7 @@ async function gerarPerguntas(id) {
   if (!t) return;
   const apiKey = getApiKey();
   if (!apiKey) {
-    t.erro = 'configure sua chave da API Anthropic abaixo';
+    t.erro = 'configure sua chave da API OpenAI abaixo';
     renderTopicos();
     document.getElementById('apiConfig').open = true;
     return;
@@ -1201,13 +1201,11 @@ async function gerarPerguntas(id) {
 TÓPICO: ${t.texto}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: AI_MODEL,
@@ -1220,7 +1218,7 @@ TÓPICO: ${t.texto}`;
       throw new Error(`HTTP ${res.status}: ${body.slice(0, 200)}`);
     }
     const data = await res.json();
-    const texto = (data.content && data.content[0] && data.content[0].text) || '';
+    const texto = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
     const perguntas = texto
       .split('\n')
       .map(l => l.replace(/^[\s\-\*\d\.\)]+/, '').trim())
