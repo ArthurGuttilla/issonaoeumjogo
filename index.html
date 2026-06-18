@@ -293,6 +293,33 @@
   .tema-num { display: block; font-size: 0.62rem; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 1px; }
   .tema-nome { font-size: 0.8rem; line-height: 1.2; }
 
+  .nivel-filter {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .nivel-btn {
+    flex: 1;
+    max-width: 140px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+  }
+  .nivel-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .nivel-btn.active {
+    border-color: var(--gold);
+    color: var(--gold-light);
+    background: #201a0e;
+  }
+
   .deck-area {
     display: flex;
     flex-direction: column;
@@ -638,6 +665,13 @@
   <div class="tema-aleatorio-wrap" id="temaAleatorioWrap"></div>
   <div class="temas-grid" id="temasGrid"></div>
 
+  <p class="temas-label" style="margin-top:8px">profundidade</p>
+  <div class="nivel-filter" id="nivelFilter">
+    <button type="button" class="nivel-btn" data-nivel="leve" onclick="setNivel('leve')">🪶 Leves</button>
+    <button type="button" class="nivel-btn active" data-nivel="all" onclick="setNivel('all')">🎲 Aleatório</button>
+    <button type="button" class="nivel-btn" data-nivel="profunda" onclick="setNivel('profunda')">🌊 Profundas</button>
+  </div>
+
   <div class="ornament">· · ·</div>
 
   <div class="deck-area">
@@ -735,75 +769,175 @@ const TOPICOS_KEY = 'jogo-topicos-v1';
 const APIKEY_KEY  = 'jogo-apikey-v1';
 const AI_MODEL    = 'gpt-4o-mini';
 
+const L = (texto) => ({ texto, nivel: 'leve' });
+const P = (texto) => ({ texto, nivel: 'profunda' });
+
 const temas = [
   { num: 1, emoji: "🌱", nome: "Origens", cor: "#7ab87a", perguntas: [
-    "Qual é a memória mais antiga que você consegue acessar com clareza?",
-    "O que você aprendeu com sua família que nunca jogou fora?",
-    "Tem alguma coisa da sua infância que ainda define quem você é hoje?",
-    "Quem foi a primeira pessoa de fora da família que realmente te enxergou?",
-    "Como era o lugar onde você cresceu — e o que ele deixou em você?",
-    "Qual versão de você mesmo você deixou para trás quando cresceu?",
+    L("Qual era seu lanche favorito quando criança?"),
+    L("Qual desenho ou filme você assistiu tantas vezes que sabe de cor?"),
+    L("Qual cheiro te leva direto para a infância?"),
+    L("Qual brincadeira você inventava sozinho ou com seus amigos?"),
+    L("Qual era seu sonho profissional aos 7 anos?"),
+    L("Qual música tocava muito na sua casa quando você era pequeno?"),
+    L("Qual era o esconderijo perfeito na sua casa de infância?"),
+    L("Qual matéria da escola você mais amava — e qual você fugia?"),
+    L("Qual apelido de infância grudou em você?"),
+    P("Qual é a memória mais antiga que você consegue acessar com clareza?"),
+    P("O que você aprendeu com sua família que nunca jogou fora?"),
+    P("Tem alguma coisa da sua infância que ainda define quem você é hoje?"),
+    P("Quem foi a primeira pessoa de fora da família que realmente te enxergou?"),
+    P("Como era o lugar onde você cresceu — e o que ele deixou em você?"),
+    P("Qual versão de você mesmo você deixou para trás quando cresceu?"),
+    P("O que sua família esperava que você fosse — e o que você se tornou no lugar?"),
+    P("Tem alguma história da sua família que você só entendeu de verdade quando ficou mais velho?"),
+    P("Qual herança emocional dos seus pais você ainda está aprendendo a carregar?"),
   ]},
   { num: 2, emoji: "🔥", nome: "O que te move", cor: "#d96b3a", perguntas: [
-    "Quando foi a última vez que você sentiu que estava exatamente no lugar certo, fazendo a coisa certa?",
-    "O que te faz levantar da cama em dias em que nada te obriga?",
-    "Tem algum problema no mundo que te incomoda tanto que você pensa nele toda semana?",
-    "O que você faria se soubesse que não ia falhar?",
-    "Qual conquista sua as pessoas costumam subestimar — mas que te orgulha muito?",
-    "O que você está construindo que vai sobreviver a você?",
+    L("Qual hobby você descobriu já na vida adulta?"),
+    L("Qual atividade te recarrega depois de uma semana puxada?"),
+    L("Qual livro, filme ou série te marcou esse ano?"),
+    L("Qual habilidade aleatória você gostaria de aprender?"),
+    L("Qual playlist embala seus dias produtivos?"),
+    L("Qual coisa boba você é absurdamente bom em fazer?"),
+    L("Qual é a parte do seu trabalho que te diverte de verdade?"),
+    L("Que tipo de pessoa te inspira a tentar mais?"),
+    L("Se ganhasse um ano sabático, o que faria primeiro?"),
+    P("Quando foi a última vez que você sentiu que estava exatamente no lugar certo, fazendo a coisa certa?"),
+    P("O que te faz levantar da cama em dias em que nada te obriga?"),
+    P("Tem algum problema no mundo que te incomoda tanto que você pensa nele toda semana?"),
+    P("O que você faria se soubesse que não ia falhar?"),
+    P("Qual conquista sua as pessoas costumam subestimar — mas que te orgulha muito?"),
+    P("O que você está construindo que vai sobreviver a você?"),
+    P("Qual é a diferença entre o que te empolga e o que te dá propósito?"),
+    P("Em que tipo de tarefa o tempo voa sem você perceber?"),
+    P("Qual é o trabalho que você faria de graça — mas se cobrassem te pagariam mal?"),
   ]},
   { num: 3, emoji: "🌊", nome: "Medos", cor: "#4a7fb8", perguntas: [
-    "Qual é o medo que você raramente admite em voz alta?",
-    "Tem algo que você evita há tanto tempo que já não sabe mais por quê começou a evitar?",
-    "O que você faz quando a vida fica pesada demais para carregar sozinho?",
-    "Qual versão de fracasso você mais teme?",
-    "Em que momento da sua vida você se sentiu mais perdido — e o que te trouxe de volta?",
-    "Tem alguma coisa em você com que você ainda não fez as pazes?",
+    L("Qual filme de terror você jamais assistiria de novo?"),
+    L("Algum bicho te dá calafrio?"),
+    L("Qual atividade radical você nunca faria, nem por um milhão?"),
+    L("Qual pesadelo recorrente você já teve?"),
+    L("Qual é o seu medo mais inútil — daqueles que você ri depois?"),
+    L("Qual lugar você nunca quer voltar a visitar?"),
+    L("Você prefere altura, escuro ou multidão?"),
+    L("Qual situação social te dá um nó no estômago?"),
+    L("Qual som te incomoda mais que tudo?"),
+    P("Qual é o medo que você raramente admite em voz alta?"),
+    P("Tem algo que você evita há tanto tempo que já não sabe mais por que começou a evitar?"),
+    P("O que você faz quando a vida fica pesada demais para carregar sozinho?"),
+    P("Qual versão de fracasso você mais teme?"),
+    P("Em que momento da sua vida você se sentiu mais perdido — e o que te trouxe de volta?"),
+    P("Tem alguma coisa em você com que você ainda não fez as pazes?"),
+    P("Quando você está vulnerável, como costuma se proteger?"),
+    P("Tem alguma decepção antiga que ainda mora em você?"),
+    P("O que mais te assusta sobre envelhecer?"),
   ]},
   { num: 4, emoji: "💛", nome: "Amor", cor: "#e0b84a", perguntas: [
-    "Como você sabe que está sendo amado de verdade?",
-    "O que você demorou mais tempo para aprender sobre se relacionar com pessoas?",
-    "Tem alguém na sua vida com quem você tem uma dívida de gratidão que nunca pagou?",
-    "Como é para você quando você se sente verdadeiramente visto por alguém?",
-    "O que você oferece numa relação que poucas pessoas percebem?",
-    "O que você precisou perder para entender o que realmente importa numa conexão?",
+    L("Qual cena de filme romântico você acha exagerada — mas adora?"),
+    L("Qual sua linguagem do amor preferida?"),
+    L("Qual gesto pequeno do dia a dia te conquista?"),
+    L("Qual a música mais romântica de todos os tempos pra você?"),
+    L("Qual encontro absurdo (bom ou ruim) você nunca esquece?"),
+    L("Qual data ou ritual de casal você acha bonito?"),
+    L("Café da manhã na cama ou jantar à luz de velas?"),
+    L("Qual é seu clichê favorito sobre amor?"),
+    L("O que faz você rir junto com alguém — daquela risada gostosa?"),
+    P("Como você sabe que está sendo amado de verdade?"),
+    P("O que você demorou mais tempo para aprender sobre se relacionar com pessoas?"),
+    P("Tem alguém na sua vida com quem você tem uma dívida de gratidão que nunca pagou?"),
+    P("Como é para você quando se sente verdadeiramente visto por alguém?"),
+    P("O que você oferece numa relação que poucas pessoas percebem?"),
+    P("O que você precisou perder para entender o que realmente importa numa conexão?"),
+    P("Qual padrão você reconhece se repetindo nos seus relacionamentos?"),
+    P("O que te faz confiar em alguém sem reservas?"),
+    P("Como você percebe quando uma relação esgotou seu tempo?"),
   ]},
   { num: 5, emoji: "🧭", nome: "Valores", cor: "#8a6ab8", perguntas: [
-    "Qual foi a decisão mais difícil que você tomou — e você ainda acha que foi certa?",
-    "Tem algo que você nunca abriria mão, independente do que estivesse em jogo?",
-    "O que você faz quando seus valores colidem com o que as pessoas esperam de você?",
-    "Quando foi a última vez que você mudou de opinião sobre algo que achava fundamental?",
-    "Como você distingue o que você quer do que você foi ensinado a querer?",
-    "Qual princípio guia você mesmo quando ninguém está olhando?",
+    L("Você é mais regra ou mais exceção?"),
+    L("Você prefere uma noite organizando ou uma noite improvisando?"),
+    L("Qual coisa popular você acha massa — ou superestimada?"),
+    L("Vegetariano por escolha ou churrasco até o fim?"),
+    L("Você é dos que perdoa atrasos ou se incomoda?"),
+    L("Você lê os termos de uso ou só clica em aceitar?"),
+    L("Você grava lembretes ou confia na sua memória?"),
+    L("Você é team manhã, tarde ou madrugada?"),
+    L("Mensagem de áudio ou texto?"),
+    P("Qual foi a decisão mais difícil que você tomou — e você ainda acha que foi certa?"),
+    P("Tem algo que você nunca abriria mão, independente do que estivesse em jogo?"),
+    P("O que você faz quando seus valores colidem com o que as pessoas esperam de você?"),
+    P("Quando foi a última vez que você mudou de opinião sobre algo que achava fundamental?"),
+    P("Como você distingue o que você quer do que você foi ensinado a querer?"),
+    P("Qual princípio guia você mesmo quando ninguém está olhando?"),
+    P("Qual mentira social te incomoda mais?"),
+    P("Que coisa o mundo aplaude mas você acha errada?"),
+    P("Qual conversa difícil você precisa ter — e está adiando?"),
   ]},
   { num: 6, emoji: "✨", nome: "Futuros", cor: "#5ab8b0", perguntas: [
-    "Como você imagina sua vida daqui a dez anos — de verdade, não o que diria numa entrevista?",
-    "Qual sonho você guardou numa gaveta por ser 'irreal' — mas que ainda abre essa gaveta às vezes?",
-    "O que você quer sentir no final de um dia bem vivido?",
-    "Se pudesse conversar com a versão de você daqui a 20 anos, o que perguntaria?",
-    "Que tipo de pessoa você está tentando se tornar — e o que está no caminho?",
-    "Qual legado você quer deixar para as pessoas que você ama?",
+    L("Praia, montanha ou cidade nova: próxima viagem dos sonhos?"),
+    L("Se pudesse morar em outra cidade por um ano, qual seria?"),
+    L("Qual habilidade você quer aprender ano que vem?"),
+    L("Qual hábito você está tentando construir agora?"),
+    L("Você se imagina mais em casa ou viajando?"),
+    L("Que tipo de casa dos sonhos você projetaria?"),
+    L("Qual experiência aleatória você quer ter antes de morrer?"),
+    L("Algum projeto criativo brotando aí?"),
+    L("Qual livro você quer ter lido antes do fim do ano?"),
+    P("Como você imagina sua vida daqui a dez anos — de verdade, não o que diria numa entrevista?"),
+    P("Qual sonho você guardou numa gaveta por ser 'irreal' — mas que ainda abre essa gaveta às vezes?"),
+    P("O que você quer sentir no final de um dia bem vivido?"),
+    P("Se pudesse conversar com a versão de você daqui a 20 anos, o que perguntaria?"),
+    P("Que tipo de pessoa você está tentando se tornar — e o que está no caminho?"),
+    P("Qual legado você quer deixar para as pessoas que você ama?"),
+    P("Qual versão sua você teme se tornar?"),
+    P("Qual aprendizado você quer levar pros seus 70 anos?"),
+    P("Que tipo de velho você quer ser?"),
   ]},
   { num: 7, emoji: "🎭", nome: "Leveza", cor: "#d47ab0", perguntas: [
-    "Qual é a coisa mais estranha que te dá prazer — que você quase nunca conta pra ninguém?",
-    "Se você fosse um personagem de livro, em qual cena estaria agora?",
-    "Qual é a crença completamente irracional que você ainda mantém?",
-    "O que você faz quando está sozinho e tem certeza que ninguém está olhando?",
-    "Qual seria o título do documentário da sua vida?",
-    "Se você pudesse exportar uma sensação para outra pessoa experimentar, qual seria?",
+    L("Qual é a coisa mais estranha que te dá prazer — que você quase nunca conta pra ninguém?"),
+    L("Se você fosse um personagem de livro, em qual cena estaria agora?"),
+    L("Qual é a crença completamente irracional que você ainda mantém?"),
+    L("O que você faz quando está sozinho e tem certeza que ninguém está olhando?"),
+    L("Qual seria o título do documentário da sua vida?"),
+    L("Se você pudesse exportar uma sensação para outra pessoa experimentar, qual seria?"),
+    L("Qual sua mania bizarra que você não consegue largar?"),
+    L("Qual seu prazer culposo na comida?"),
+    L("Se virasse fantasma, em quem você apareceria primeiro?"),
+    P("Qual é o momento mais ridículo da sua vida — e o que ele te ensinou?"),
+    P("Qual riso seu te entrega que você está realmente feliz?"),
+    P("Quando foi a última vez que você se sentiu totalmente bobo de um jeito gostoso?"),
+    P("Qual é a sensação que você persegue sem saber nomear?"),
+    P("Tem algum hábito seu que parece bobo, mas significa muito?"),
+    P("Qual seu jeito favorito de desperdiçar tempo?"),
+    P("Que tipo de absurdo te dá vontade de rir até chorar?"),
+    P("Tem alguma coisa que você ama e quase tem vergonha de amar?"),
+    P("Qual reflexão besta te ocupa o cérebro essa semana?"),
   ]},
   { num: 8, emoji: "🤝", nome: "Você & Eu", cor: "#c9a85c", perguntas: [
-    "O que te fez aceitar esse encontro?",
-    "Tem algo que você queria perguntar mas ainda não perguntou?",
-    "O que você percebeu sobre mim hoje que não esperava perceber?",
-    "Se você tivesse que me apresentar para um amigo seu, o que diria até agora?",
-    "O que a conversa de hoje vai deixar em você?",
-    "Tem alguma coisa que você quer que eu saiba sobre você antes de nos despedirmos?",
+    L("Primeira impressão que você teve de mim?"),
+    L("O que te chamou atenção na minha foto ou no meu perfil?"),
+    L("Você descreveria esse encontro como qual sabor de sorvete?"),
+    L("Se nosso encontro tivesse uma trilha sonora, qual seria?"),
+    L("Qual é uma coisa que você curtiu nessa conversa até agora?"),
+    L("Tem alguma pergunta que você queria que eu fizesse para você?"),
+    L("Como você imagina o final da gente dessa noite?"),
+    L("Qual emoji descreveria como você se sente agora?"),
+    L("Se a gente continuasse esse papo num lugar, qual seria?"),
+    P("O que te fez aceitar esse encontro?"),
+    P("Tem algo que você queria perguntar mas ainda não perguntou?"),
+    P("O que você percebeu sobre mim hoje que não esperava perceber?"),
+    P("Se você tivesse que me apresentar para um amigo seu, o que diria até agora?"),
+    P("O que a conversa de hoje vai deixar em você?"),
+    P("Tem alguma coisa que você quer que eu saiba sobre você antes de nos despedirmos?"),
+    P("Qual o momento dessa conversa você mais gostou?"),
+    P("Qual energia você sente entre a gente agora?"),
+    P("O que você está deixando por dizer — e por quê?"),
   ]},
 ];
 
 // ---- STATE ----
 let temaSelecionado = 'all';
+let nivelSelecionado = 'all'; // 'leve' | 'profunda' | 'all'
 let usadas = {};
 let historico = []; // [{ id, temaNum, emoji, nomeThema, pergunta, resposta, ts }]
 let filtroAtivo = null; // null = todos
@@ -861,16 +995,38 @@ function renderTemas() {
   });
 }
 
+function setNivel(n) {
+  nivelSelecionado = n;
+  document.querySelectorAll('#nivelFilter .nivel-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.nivel === n);
+  });
+  esconderCarta();
+  atualizarDeck();
+}
+
 // ---- DECK ----
+function temasAtivos() {
+  return temaSelecionado === 'all'
+    ? temas
+    : [temas.find(t => t.num === temaSelecionado)];
+}
+
+function perguntasDisponiveis() {
+  const out = [];
+  temasAtivos().forEach(t => {
+    if (!usadas[t.num]) usadas[t.num] = [];
+    t.perguntas.forEach((p, i) => {
+      if (usadas[t.num].includes(i)) return;
+      if (nivelSelecionado !== 'all' && p.nivel !== nivelSelecionado) return;
+      out.push({ tema: t, p, i });
+    });
+  });
+  return out;
+}
+
 function atualizarDeck() {
   if (!temaSelecionado) return;
-  let restantes;
-  if (temaSelecionado === 'all') {
-    restantes = temas.reduce((acc, t) => acc + (t.perguntas.length - (usadas[t.num] || []).length), 0);
-  } else {
-    const tema = temas.find(t => t.num === temaSelecionado);
-    restantes = tema.perguntas.length - (usadas[temaSelecionado] || []).length;
-  }
+  const restantes = perguntasDisponiveis().length;
   const counter = document.getElementById('deckCounter');
   const label = document.getElementById('deckLabel');
   const deck = document.getElementById('deckStack');
@@ -900,29 +1056,14 @@ function esconderCarta() {
 async function puxarCarta() {
   if (!temaSelecionado) return;
 
-  let pool = [];
-  if (temaSelecionado === 'all') {
-    temas.forEach(t => {
-      if (!usadas[t.num]) usadas[t.num] = [];
-      t.perguntas.forEach((p, i) => {
-        if (!usadas[t.num].includes(i)) pool.push({ tema: t, p, i });
-      });
-    });
-  } else {
-    const tema = temas.find(t => t.num === temaSelecionado);
-    if (!usadas[tema.num]) usadas[tema.num] = [];
-    tema.perguntas.forEach((p, i) => {
-      if (!usadas[tema.num].includes(i)) pool.push({ tema, p, i });
-    });
-  }
-
+  const pool = perguntasDisponiveis();
   if (pool.length === 0) return;
 
   const escolha = pool[Math.floor(Math.random() * pool.length)];
   const tema = escolha.tema;
   usadas[tema.num].push(escolha.i);
 
-  cartaAtual = { tema, pergunta: escolha.p };
+  cartaAtual = { tema, pergunta: escolha.p.texto, nivel: escolha.p.nivel };
 
   await salvarUsadas();
 
@@ -935,8 +1076,9 @@ async function puxarCarta() {
   btnSalvar.textContent = 'salvar resposta';
 
   // UI carta
-  document.getElementById('cardTema').textContent = `${tema.emoji} ${tema.nome}`;
-  document.getElementById('cardPergunta').textContent = escolha.p;
+  const nivelTag = escolha.p.nivel === 'profunda' ? '· profunda' : '· leve';
+  document.getElementById('cardTema').textContent = `${tema.emoji} ${tema.nome} ${nivelTag}`;
+  document.getElementById('cardPergunta').textContent = escolha.p.texto;
 
   const front = document.getElementById('cardFront');
   front.style.borderColor = tema.cor;
@@ -978,6 +1120,7 @@ async function salvarResposta() {
     emoji: tema.emoji,
     nomeThema: tema.nome,
     pergunta: cartaAtual.pergunta,
+    nivel: cartaAtual.nivel,
     resposta,
     ts: new Date().toISOString()
   };
