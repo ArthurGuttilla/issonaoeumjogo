@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Isso Não É Um Jogo</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -26,6 +26,9 @@
 
   body {
     font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.5;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -34,6 +37,9 @@
     align-items: center;
     padding: 32px 20px 64px;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body::before {
@@ -222,15 +228,15 @@
   .title em { font-style: italic; color: var(--gold); }
 
   .subtitle {
-    font-size: 0.75rem;
-    letter-spacing: 0.25em;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
   }
 
   .temas-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
     margin-bottom: 12px;
@@ -284,8 +290,8 @@
   .tema-btn.active { border-color: var(--gold); color: var(--gold-light); background: #201a0e; }
   .tema-btn.active::after { opacity: 0.07; }
   .tema-emoji { font-size: 1.3rem; display: block; margin-bottom: 3px; }
-  .tema-num { display: block; font-size: 0.55rem; letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 1px; }
-  .tema-nome { font-size: 0.68rem; line-height: 1.2; }
+  .tema-num { display: block; font-size: 0.62rem; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 1px; }
+  .tema-nome { font-size: 0.8rem; line-height: 1.2; }
 
   .deck-area {
     display: flex;
@@ -342,8 +348,8 @@
   }
 
   .deck-counter {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-muted);
     margin-bottom: 28px;
@@ -388,11 +394,11 @@
   .card-front-tema { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: #8a7050; }
   .card-front-pergunta {
     font-family: 'Playfair Display', serif;
-    font-size: 0.92rem;
-    line-height: 1.6;
+    font-size: 1.05rem;
+    line-height: 1.5;
     color: #1a1208;
     text-align: center;
-    font-weight: 400;
+    font-weight: 500;
   }
   .card-front-line { width: 32px; height: 1px; background: #c9a85c; opacity: 0.5; }
 
@@ -485,8 +491,8 @@
   }
 
   .historico-title {
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
   }
@@ -565,20 +571,20 @@
   }
 
   .hist-tema-nome {
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--gold-dim);
   }
 
   .hist-time {
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     margin-left: auto;
   }
 
   .hist-pergunta {
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     line-height: 1.5;
     color: var(--text-dim);
     font-style: italic;
@@ -588,7 +594,7 @@
     margin-top: 8px;
     padding-left: 10px;
     border-left: 2px solid var(--gold-dim);
-    font-size: 0.85rem;
+    font-size: 0.98rem;
     line-height: 1.5;
     color: var(--text);
     white-space: pre-wrap;
@@ -598,7 +604,7 @@
     text-align: center;
     color: var(--text-muted);
     font-style: italic;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     padding: 24px 0;
   }
 
